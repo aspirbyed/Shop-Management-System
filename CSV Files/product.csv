@@ -1,0 +1,21 @@
+ProductID,ProductName,CategoryID,Price,StockLevel,RestockLevel,SupplierID,DiscountID
+101,iPhone 15 Pro,1,82999,50,10,1,1
+102,Samsung Galaxy S24 Ultra,1,49799,75,15,2,2
+103,Sony WH-1000XM5 Headphones,2,8299,100,20,3,1
+104,Logitech MX Keys Keyboard,2,4159,80,15,1,2
+105,Razer DeathAdder Mouse,2,2489,120,25,2,1
+106,Dell UltraSharp U2723QE Monitor,3,16599,60,10,3,2
+107,HP LaserJet Pro Printer,3,12449,40,8,1,1
+108,Canon CanoScan Scanner,3,10791,30,5,2,2
+109,Herman Miller Aeron Chair,4,16599,50,10,3,1
+110,IKEA Bekant Desk,4,24899,35,7,1,2
+111,Amazon Basics Bookcase,4,10791,45,9,2,1
+112,West Elm Parsons Table,4,14879,40,8,3,2
+113,Samsonite Laptop Backpack,5,4159,90,18,1,1
+114,American Tourister Luggage,5,10791,60,12,2,2
+115,Parker Jotter Pen Set,5,1659,150,30,3,1
+116,Moleskine Classic Notebook,5,829,200,40,1,2
+117,Canon EOS R6 Camera,6,41599,25,5,2,1
+118,Manfrotto Befree Tripod,6,6639,70,14,3,2
+119,Sandisk Extreme Memory Card,6,2489,100,20,1,1
+120, Kingston DataTraveler USB Drive,6,1659,150,30,2,2
