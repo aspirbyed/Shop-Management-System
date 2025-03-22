@@ -1,7 +1,8 @@
 # Import Modules
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget,\
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, QHeaderView,\
     QLabel, QPushButton, QLineEdit, QTableWidget, QMessageBox, QTableWidgetItem
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
+from PyQt5.QtCore import Qt
 import sys
 
 class DiscountPage(QWidget):
@@ -20,6 +21,16 @@ class DiscountPage(QWidget):
         self.table = QTableWidget()
         self.table.setColumnCount(2)
         self.table.setHorizontalHeaderLabels(["DiscountID", "DiscountValue"])
+
+        # Make the table read-only
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        # Make the entire row get selected when any item in it is clicked
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+
+        # Fit the table within the screen (remove horizontal scrollbar)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Stretch columns to fit the table width
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Optional: disable horizontal scrollbar
 
         self.master_layout = QVBoxLayout()
         self.row1 = QHBoxLayout()
