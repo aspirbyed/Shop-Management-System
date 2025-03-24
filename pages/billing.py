@@ -5,6 +5,10 @@ from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, QHe
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QIntValidator
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+import os
 import sys
 
 class PaymentBox(QDialog):
@@ -288,6 +292,16 @@ class BillingPage(QWidget):
         query4.addBindValue(method)
         query4.exec_()
 
+        cwd = os.getcwd()
+        bills_directory = os.path.join(cwd, "Bills")
+        try:
+            os.makedirs(bills_directory, exist_ok=True)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to create directory {bills_directory}: {str(e)}")
+            return
+        file_path = os.path.join(bills_directory, f"bill_{dateTime}.pdf")
+
+        self.create_bill(file_path, dateTime[:10], dateTime[11:])
         QMessageBox.information(self, "Success", "Bill Checked Out")
         self.cancel()
 
@@ -297,6 +311,64 @@ class BillingPage(QWidget):
         self.subtotal_amount = 0
         self.subtotal.setText(str(self.subtotal_amount))
         self.table.setRowCount(0)
+
+    def create_bill(self, file_path, date, time):
+        c = canvas.Canvas(file_path, pagesize=letter)
+        width, height = letter  # Page dimensions: 612 x 792 points
+
+        # Header Section
+        y_position = height - 50  # Start near the top
+        c.setFont("Helvetica-Bold", 16)
+        c.drawString(50, y_position, "Company Inc.")
+        y_position -= 20
+        c.setFont("Helvetica", 12)
+        c.drawString(50, y_position, "1234 Fake Street, Imaginary City, IC 56789")
+        y_position -= 20
+        c.drawString(50, y_position, f"Date: {date}")
+        y_position -= 20
+        c.drawString(50, y_position, f"Time: {time}")
+        y_position -= 40
+
+        # Table Header
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(50, y_position, "Item No.")
+        c.drawString(150, y_position, "Name")
+        c.drawString(350, y_position, "Price")
+        y_position -= 10
+        c.line(50, y_position, 550, y_position)  # Draw a line under the header
+        y_position -= 20
+
+        # Table Items (Dynamic)
+        c.setFont("Helvetica", 12)
+        for row in range(self.table.rowCount()):
+            item_number = str(row + 1)
+            product_name = self.table.item(row, 0).text()
+            total_price = self.table.item(row, 3).text()  # Total Price column
+
+            c.drawString(50, y_position, item_number)
+            c.drawString(150, y_position, product_name)
+            c.drawString(350, y_position, f"${float(total_price):.2f}")
+            y_position -= 20
+
+            # Check if we need a new page
+            if y_position < 50:
+                c.showPage()
+                y_position = height - 50
+                c.setFont("Helvetica", 12)
+        
+        # Subtotal Section
+        y_position -= 20
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(50, y_position, f"Subtotal: ${self.subtotal_amount:.2f}")
+        y_position -= 40
+
+        # Encouraging Message
+        c.setFont("Helvetica-Oblique", 12)
+        c.drawString(50, y_position, "Visit us again!")
+
+        # Finalize the PDF
+        c.save()
+        return
 
 database = QSqlDatabase.addDatabase("QSQLITE")
 database.setDatabaseName("sms.db")
