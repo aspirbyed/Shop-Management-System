@@ -10,7 +10,7 @@ import sys
 class LoginForm(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Hotel Management System")
+        self.setWindowTitle("Shop Management System")
         self.resize(550, 500)
         self.setup_ui()
 
