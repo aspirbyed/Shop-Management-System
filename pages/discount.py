@@ -15,8 +15,8 @@ class DiscountPage(QWidget):
         
         self.add_btn = QPushButton("Add Discount")
         self.del_btn = QPushButton("Delete Discount")
-        # self.add_btn.clicked.connect(self.add_discount)
-        # self.del_btn.clicked.connect(self.delete_discount)
+        self.add_btn.clicked.connect(self.add_discount)
+        self.del_btn.clicked.connect(self.delete_discount)
 
         self.table = QTableWidget()
         self.table.setColumnCount(2)

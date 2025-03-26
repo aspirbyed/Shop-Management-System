@@ -292,8 +292,8 @@ class BillingPage(QWidget):
         query4.addBindValue(method)
         query4.exec_()
 
-        cwd = os.getcwd()
-        bills_directory = os.path.join(cwd, "Bills")
+        documents_dir = os.path.expanduser("~/Documents")
+        bills_directory = os.path.join(documents_dir, "Bills")
         try:
             os.makedirs(bills_directory, exist_ok=True)
         except Exception as e:
