@@ -10,6 +10,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 import os
 import sys
+from barcode import BarcodeScannerDialog
 
 class PaymentBox(QDialog):
     def __init__(self, total_amount, parent=None):
@@ -58,11 +59,15 @@ class PaymentBox(QDialog):
         return method, amount
 
 class BillingPage(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.main_window = parent
 
         self.setWindowTitle("Billing Page")
         self.resize(550,500)
+
+        self.back_btn = QPushButton("Back to Main Page")
+        self.back_btn.clicked.connect(self.main_window.show_main)
 
         # self.table_data = []
         self.subtotal_amount = 0
@@ -77,6 +82,10 @@ class BillingPage(QWidget):
         self.del_btn.setFixedSize(40,30)
         self.add_btn.clicked.connect(self.add_product)
         self.del_btn.clicked.connect(self.rem_product)
+
+        self.scan_btn = QPushButton("Scan")
+        self.scan_btn.setFixedSize(100,30)
+        self.scan_btn.clicked.connect(self.scan_product)
 
         self.bill_btn = QPushButton("Checkout")
         self.cancel_btn = QPushButton("Cancel")
@@ -113,6 +122,7 @@ class BillingPage(QWidget):
         self.row1 = QHBoxLayout()
         self.row2 = QHBoxLayout()
         self.row3 = QHBoxLayout()
+        self.row4 = QHBoxLayout()
 
         self.row1.addWidget(QLabel("Product Name:"))
         self.row1.addWidget(self.product_list)
@@ -130,10 +140,15 @@ class BillingPage(QWidget):
         self.row3.addWidget(self.cancel_btn)
         self.row3.addWidget(self.bill_btn)
 
+        self.row4.addWidget(self.scan_btn)
+        self.row4.addStretch()
+
         self.master_layout.addLayout(self.row1)
+        self.master_layout.addLayout(self.row4)
         self.master_layout.addLayout(self.row2)
         self.master_layout.addWidget(self.table)
         self.master_layout.addLayout(self.row3)
+        self.master_layout.addWidget(self.back_btn)
 
         self.setLayout(self.master_layout)
 
@@ -369,16 +384,22 @@ class BillingPage(QWidget):
         # Finalize the PDF
         c.save()
         return
+    
+    def scan_product(self):
+        dialog = BarcodeScannerDialog()
+        if dialog.exec_():
+            product_name = dialog.get_product_name()
+            self.product_list.setCurrentText(product_name)
 
-database = QSqlDatabase.addDatabase("QSQLITE")
-database.setDatabaseName("sms.db")
+# database = QSqlDatabase.addDatabase("QSQLITE")
+# database.setDatabaseName("sms.db")
 
-if not database.open():
-    QMessageBox.critical(None, "Error", "Could not open database")
-    sys.exit(1)
+# if not database.open():
+#     QMessageBox.critical(None, "Error", "Could not open database")
+#     sys.exit(1)
 
-if __name__ == "__main__":
-    app = QApplication([])
-    window = BillingPage()
-    window.show()
-    app.exec_()
+# if __name__ == "__main__":
+#     app = QApplication([])
+#     window = BillingPage()
+#     window.show()
+#     app.exec_()

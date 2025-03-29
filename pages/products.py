@@ -137,8 +137,10 @@ class DeleteProductDialog(QDialog):
         return self.product_combo.currentData()
 
 class ProductPage(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.main_window = parent
+
         self.setWindowTitle("Product Management Page")
         self.resize(870, 600)
 
@@ -148,12 +150,13 @@ class ProductPage(QWidget):
         
         self.add_btn = QPushButton("Add Product")
         self.del_btn = QPushButton("Delete Product")
-        self.back_btn = QPushButton("Back")
+        self.back_btn = QPushButton("Back to Main Page")
+        self.back_btn.clicked.connect(self.main_window.show_main)
         
         self.add_btn.clicked.connect(self.show_add_product_dialog)
         self.del_btn.clicked.connect(self.show_delete_product_dialog)
         
-        self.back_btn.setFixedSize(100, 30)
+        self.back_btn.setFixedSize(200, 30)
         
         self.table = QTableWidget()
         self.table.setColumnCount(8)
@@ -350,17 +353,17 @@ def create_product_table():
     else:
         print("Product table created or already exists.")
 
-database = QSqlDatabase.addDatabase("QSQLITE")
-database.setDatabaseName("sms.db")
+# database = QSqlDatabase.addDatabase("QSQLITE")
+# database.setDatabaseName("sms.db")
 
-if not database.open():
-    QMessageBox.critical(None, "Error", "Could not open database")
-    sys.exit(1)
+# if not database.open():
+#     QMessageBox.critical(None, "Error", "Could not open database")
+#     sys.exit(1)
 
-if __name__ == "__main__":
-    app = QApplication([])
-    create_product_table()
-    check_table_schema()
-    window = ProductPage()
-    window.show()
-    app.exec_()
+# if __name__ == "__main__":
+#     app = QApplication([])
+#     create_product_table()
+#     check_table_schema()
+#     window = ProductPage()
+#     window.show()
+#     app.exec_()

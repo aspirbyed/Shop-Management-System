@@ -8,6 +8,7 @@ from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
+import sys
 
 class SalesAnalyzer:
     def __init__(self, db_path="sms.db"):
@@ -44,8 +45,10 @@ class SalesAnalyzer:
         """Load data from the SQLite database and preprocess it."""
         try:
             # Connect to the SQLite database
-            conn = sqlite3.connect(self.db_path)
-            print(f"Successfully connected to the database: {self.db_path}")
+            base_path = os.path.dirname(sys.executable)
+            db_path = os.path.join(base_path, "sms.db")
+            conn = sqlite3.connect(db_path)
+            print(f"Successfully connected to the database: {db_path}")
 
             # Fetch Sales data
             sales_query = "SELECT * FROM Sales"
@@ -473,12 +476,12 @@ class SalesAnalyzer:
         if success:
             self.generate_pdf(analysis_type, time_frame_str)
 
-if __name__ == '__main__':
-    # Example values for testing when running directly
-    target_date = '2025-03-01'
-    target_year_month = '2025-03'
-    target_year = '2025'
-    analysis_type = 'day'  # Change to 'month' or 'year' for testing
+# if __name__ == '__main__':
+#     # Example values for testing when running directly
+#     target_date = '2025-03-01'
+#     target_year_month = '2025-03'
+#     target_year = '2025'
+#     analysis_type = 'day'  # Change to 'month' or 'year' for testing
 
-    analyzer = SalesAnalyzer(db_path="sms.db")
-    analyzer.main(target_date, target_year_month, target_year, analysis_type)
+#     analyzer = SalesAnalyzer(db_path="sms.db")
+#     analyzer.main(target_date, target_year_month, target_year, analysis_type)

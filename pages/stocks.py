@@ -66,21 +66,26 @@ class AddStockDialog(QDialog):
         return self.supplier_combo.currentData()
 
 class StockPage(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.main_window = parent
+
         self.setWindowTitle("Stock Management Page")
         self.resize(870, 600)
+
+        self.back_btn = QPushButton("Back to Main Page")
+        self.back_btn.clicked.connect(self.main_window.show_main)
 
         self.search_field = QLineEdit()
         self.search_field.setPlaceholderText("Enter product name...")
         self.search_field.textChanged.connect(self.filter_table)
         
         self.add_btn = QPushButton("Add Stock")
-        self.back_btn = QPushButton("Back")
+        # self.back_btn = QPushButton("Back")
         
         self.add_btn.clicked.connect(self.show_add_stock_dialog)
         
-        self.back_btn.setFixedSize(100, 30)
+        # self.back_btn.setFixedSize(100, 30)
         
         self.table = QTableWidget()
         self.table.setColumnCount(4)
@@ -211,16 +216,16 @@ def check_table_schema():
         else:
             print(f"Schema check error for {table}: {query.lastError().text()}")
 
-database = QSqlDatabase.addDatabase("QSQLITE")
-database.setDatabaseName("sms.db")
+# database = QSqlDatabase.addDatabase("QSQLITE")
+# database.setDatabaseName("sms.db")
 
-if not database.open():
-    QMessageBox.critical(None, "Error", "Could not open database")
-    sys.exit(1)
+# if not database.open():
+#     QMessageBox.critical(None, "Error", "Could not open database")
+#     sys.exit(1)
 
-if __name__ == "__main__":
-    app = QApplication([])
-    check_table_schema()
-    window = StockPage()
-    window.show()
-    app.exec_()
+# if __name__ == "__main__":
+#     app = QApplication([])
+#     check_table_schema()
+#     window = StockPage()
+#     window.show()
+#     app.exec_()

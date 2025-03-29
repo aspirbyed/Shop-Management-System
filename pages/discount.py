@@ -6,10 +6,15 @@ from PyQt5.QtCore import Qt
 import sys
 
 class DiscountPage(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.main_window = parent
+
         self.setWindowTitle("Discount Page")
         self.resize(550,500)
+
+        self.back_btn = QPushButton("Back to Main Page")
+        self.back_btn.clicked.connect(self.main_window.show_main)
 
         self.discount = QLineEdit()
         
@@ -42,6 +47,7 @@ class DiscountPage(QWidget):
 
         self.master_layout.addLayout(self.row1)
         self.master_layout.addWidget(self.table)
+        self.master_layout.addWidget(self.back_btn)
 
         self.setLayout(self.master_layout)
 
@@ -87,15 +93,15 @@ class DiscountPage(QWidget):
         else:
             QMessageBox.critical(self, "Error", "Error deleting discount")
 
-database = QSqlDatabase.addDatabase("QSQLITE")
-database.setDatabaseName("sms.db")
+# database = QSqlDatabase.addDatabase("QSQLITE")
+# database.setDatabaseName("sms.db")
 
-if not database.open():
-    QMessageBox.critical(None, "Error", "Could not open database")
-    sys.exit(1)
+# if not database.open():
+#     QMessageBox.critical(None, "Error", "Could not open database")
+#     sys.exit(1)
 
-if __name__ == "__main__":
-    app = QApplication([])
-    window = DiscountPage()
-    window.show()
-    app.exec_()
+# if __name__ == "__main__":
+#     app = QApplication([])
+#     window = DiscountPage()
+#     window.show()
+#     app.exec_()

@@ -122,11 +122,16 @@ class YearlyReportDialog(QDialog):
         return str(self.year_spin.value())
 
 class ReportPage(QDialog):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.main_window = parent
+
         self.setWindowTitle("Report Page")
         self.setFixedWidth(200)
         self.setFixedHeight(200)
+
+        self.back_btn = QPushButton("Back to Main Page")
+        self.back_btn.clicked.connect(self.main_window.show_main)
 
         self.daily_btn = QPushButton("Daily Report")
         self.monthly_btn = QPushButton("Monthly Report")
@@ -149,6 +154,7 @@ class ReportPage(QDialog):
         self.master_layout.addLayout(self.row1)
         self.master_layout.addLayout(self.row2)
         self.master_layout.addLayout(self.row3)
+        self.master_layout.addWidget(self.back_btn)
         self.setLayout(self.master_layout)
     
     def daily_report(self):
@@ -178,8 +184,8 @@ class ReportPage(QDialog):
             analyzer = SalesAnalyzer(db_path="sms.db")
             analyzer.main(None, None, target_year, 'year')
 
-if __name__ == '__main__':
-    app = QApplication([])
-    window = ReportPage()
-    window.show()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QApplication([])
+#     window = ReportPage()
+#     window.show()
+#     sys.exit(app.exec_())

@@ -5,10 +5,15 @@ from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 import sys
 
 class SuppliersPage(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.main_window = parent
+
         self.setWindowTitle("Suppliers Page")
         self.resize(600, 500)
+
+        self.back_btn = QPushButton("Back to Main Page")
+        self.back_btn.clicked.connect(self.main_window.show_main)
 
         # Input fields for supplier details
         self.supplier_name = QLineEdit()
@@ -52,6 +57,7 @@ class SuppliersPage(QWidget):
         self.master_layout.addLayout(self.row2)
         self.master_layout.addLayout(self.row3)
         self.master_layout.addWidget(self.table)
+        self.master_layout.addWidget(self.back_btn)
 
         self.setLayout(self.master_layout)
 
@@ -152,26 +158,16 @@ class SuppliersPage(QWidget):
         self.supplier_name.clear()
         self.supplier_contact.clear()
 
-# Database Setup
-database = QSqlDatabase.addDatabase("QSQLITE")
-database.setDatabaseName("sms.db")
+# # Database Setup
+# database = QSqlDatabase.addDatabase("QSQLITE")
+# database.setDatabaseName("sms.db")
 
-if not database.open():
-    QMessageBox.critical(None, "Error", "Could not open database")
-    sys.exit(1)
+# if not database.open():
+#     QMessageBox.critical(None, "Error", "Could not open database")
+#     sys.exit(1)
 
-# Create Suppliers table if it doesn't exist
-# query = QSqlQuery()
-# query.exec_("""
-#     CREATE TABLE IF NOT EXISTS Suppliers (
-#         supplierID INTEGER PRIMARY KEY AUTOINCREMENT,
-#         supplierName TEXT NOT NULL,
-#         supplierContact TEXT NOT NULL
-#     )
-# """)
-
-if __name__ == "__main__":
-    app = QApplication([])
-    window = SuppliersPage()
-    window.show()
-    app.exec_()
+# if __name__ == "__main__":
+#     app = QApplication([])
+#     window = SuppliersPage()
+#     window.show()
+#     app.exec_()
