@@ -103,29 +103,37 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentWidget(self.main_page)
 
     def show_billing(self):
+        self.setWindowTitle("Billing Page")
         self.stack.setCurrentWidget(self.billing_page)
 
     def show_products(self):
+        self.setWindowTitle("Products Page")
         self.products_page.load_table()
         self.stack.setCurrentWidget(self.products_page)
 
     def show_stocks(self):
+        self.setWindowTitle("Stock Page")
         self.stocks_page.load_table()
         self.stack.setCurrentWidget(self.stocks_page)
 
     def show_report(self):
+        self.setWindowTitle("Report Page")
         self.stack.setCurrentWidget(self.report_page)
 
     def show_discount(self):
+        self.setWindowTitle("Discount Page")
         self.stack.setCurrentWidget(self.discount_page)
 
     def show_suppliers(self):
+        self.setWindowTitle("Suppliers Page")
         self.stack.setCurrentWidget(self.suppliers_page)
 
     def show_category(self):
+        self.setWindowTitle("Category Page")
         self.stack.setCurrentWidget(self.category_page)
 
     def show_main(self):
+        self.setWindowTitle("Shop Management System")
         self.stack.setCurrentWidget(self.main_page)
 
     def logout(self):
