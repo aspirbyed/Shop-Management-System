@@ -106,14 +106,15 @@ class StockPage(QWidget):
         self.row1.addWidget(self.search_field)
         self.row1.addWidget(self.add_btn)
 
-        back_btn_layout = QHBoxLayout()
-        back_btn_layout.addStretch()
-        back_btn_layout.addWidget(self.back_btn)
-        back_btn_layout.addStretch()
+        self.back_btn.setFixedSize(200, 30)
+        self.back_btn_layout = QHBoxLayout()
+        self.back_btn_layout.addStretch()
+        self.back_btn_layout.addWidget(self.back_btn)
+        self.back_btn_layout.addStretch()
 
         self.master_layout.addLayout(self.row1)
         self.master_layout.addWidget(self.scroll_area)
-        self.master_layout.addLayout(back_btn_layout)
+        self.master_layout.addLayout(self.back_btn_layout)
 
         self.search_field.setStyleSheet("padding: 5px;")
         self.add_btn.setStyleSheet("padding: 5px;")

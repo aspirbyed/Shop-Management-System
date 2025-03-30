@@ -150,11 +150,17 @@ class ReportPage(QDialog):
         self.row2.addWidget(self.monthly_btn)
         self.row3.addWidget(self.yearly_btn)
 
+        self.back_btn.setFixedSize(200, 30)
+        self.back_btn_layout = QHBoxLayout()
+        self.back_btn_layout.addStretch()
+        self.back_btn_layout.addWidget(self.back_btn)
+        self.back_btn_layout.addStretch()
+
         self.master_layout.addWidget(QLabel("Generate Report"))
         self.master_layout.addLayout(self.row1)
         self.master_layout.addLayout(self.row2)
         self.master_layout.addLayout(self.row3)
-        self.master_layout.addWidget(self.back_btn)
+        self.master_layout.addLayout(self.back_btn_layout)
         self.setLayout(self.master_layout)
     
     def daily_report(self):

@@ -102,7 +102,7 @@ class LoginForm(QWidget):
         password = self.textbox_password.text()
 
         if username == 'admin' and password == 'password':
-            QMessageBox.information(self, 'Success', 'Login successful!')
+            # QMessageBox.information(self, 'Success', 'Login successful!')
             self.hide()  # Hide instead of close
             if not self.main_window:
                 self.main_window = MainWindow(self)  # Pass self as parent

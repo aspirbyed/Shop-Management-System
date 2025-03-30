@@ -45,9 +45,15 @@ class DiscountPage(QWidget):
         self.row1.addWidget(self.add_btn)
         self.row1.addWidget(self.del_btn)
 
+        self.back_btn.setFixedSize(200, 30)
+        self.back_btn_layout = QHBoxLayout()
+        self.back_btn_layout.addStretch()
+        self.back_btn_layout.addWidget(self.back_btn)
+        self.back_btn_layout.addStretch()
+
         self.master_layout.addLayout(self.row1)
         self.master_layout.addWidget(self.table)
-        self.master_layout.addWidget(self.back_btn)
+        self.master_layout.addLayout(self.back_btn_layout)
 
         self.setLayout(self.master_layout)
 
