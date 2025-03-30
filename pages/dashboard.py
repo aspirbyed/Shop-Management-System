@@ -1,8 +1,11 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QLabel, QVBoxLayout, \
-    QMainWindow, QStackedWidget, QTableWidget, QMessageBox, QTableWidgetItem, QDialog, QFormLayout, QLineEdit, \
-    QHBoxLayout, QScrollArea, QComboBox
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QPushButton, QGridLayout, QLabel, QVBoxLayout,
+    QMainWindow, QStackedWidget, QTableWidget, QMessageBox, QTableWidgetItem,
+    QDialog, QFormLayout, QLineEdit, QHBoxLayout, QScrollArea, QComboBox
+)
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlError
+import sys
 
 # Import the page classes
 from billing import BillingPage
@@ -13,23 +16,22 @@ from category import CategoryPage
 from products import ProductPage
 from supplier import SuppliersPage
 
-import sys
-
 class MainPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
 
         # Create navigation buttons
-        self.billing_btn = QPushButton("Billing Page" )
+        self.billing_btn = QPushButton("Billing Page")
         self.discount_btn = QPushButton("Discount Page")
         self.category_btn = QPushButton("Category Page")
         self.products_btn = QPushButton("Products Page")
         self.stocks_btn = QPushButton("Stocks Page")
         self.suppliers_btn = QPushButton("Suppliers Page")
         self.report_btn = QPushButton("Report Page")
+        self.logout_btn = QPushButton("Logout")
 
-        # Add buttons to the horizontal layout
+        # Add buttons to the layout
         layout.addWidget(self.billing_btn)
         layout.addWidget(self.discount_btn)
         layout.addWidget(self.category_btn)
@@ -37,11 +39,13 @@ class MainPage(QWidget):
         layout.addWidget(self.stocks_btn)
         layout.addWidget(self.suppliers_btn)
         layout.addWidget(self.report_btn)
-        layout.addStretch()  # Optional: pushes buttons to the lef
+        layout.addWidget(self.logout_btn)
+        layout.addStretch()
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, login_form=None):
         super().__init__()
+        self.login_form = login_form  # Store reference to login form
         self.setWindowTitle("Shop Management System")
         self.setGeometry(100, 100, 800, 600)
 
@@ -52,7 +56,7 @@ class MainWindow(QMainWindow):
         # Create the main page
         self.main_page = MainPage()
 
-        # Create instances of other pages, passing self as parent to access navigation
+        # Create instances of other pages
         self.billing_page = BillingPage(self)
         self.discount_page = DiscountPage(self)
         self.category_page = CategoryPage(self)
@@ -79,6 +83,7 @@ class MainWindow(QMainWindow):
         self.main_page.stocks_btn.clicked.connect(self.show_stocks)
         self.main_page.suppliers_btn.clicked.connect(self.show_suppliers)
         self.main_page.report_btn.clicked.connect(self.show_report)
+        self.main_page.logout_btn.clicked.connect(self.logout)
 
         # Set the initial page to the main page
         self.stack.setCurrentWidget(self.main_page)
@@ -106,6 +111,12 @@ class MainWindow(QMainWindow):
 
     def show_main(self):
         self.stack.setCurrentWidget(self.main_page)
+
+    def logout(self):
+        """Handle logout functionality"""
+        self.hide()  # Hide dashboard
+        if self.login_form:
+            self.login_form.reset()  # Show and reset login form
 
 # database = QSqlDatabase.addDatabase("QSQLITE")
 # database.setDatabaseName("sms.db")
