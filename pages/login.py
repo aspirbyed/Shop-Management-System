@@ -1,17 +1,15 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QMessageBox, QLineEdit
-from PyQt5.QtCore import Qt
-from PyQt5.QtSql import QSqlDatabase
-
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QLineEdit, QPushButton,
     QVBoxLayout, QSpacerItem, QSizePolicy, QMessageBox
 )
 from PyQt5.QtGui import QFont
-import sys
+from PyQt5.QtCore import Qt
+from PyQt5.QtSql import QSqlDatabase
+
 from dashboard import MainWindow  # Import the MainWindow class
 
-import os
 import sys
+import os
 import shutil
 import logging
 
@@ -61,6 +59,7 @@ def get_writable_db_path():
 class LoginForm(QWidget):
     def __init__(self):
         super().__init__()
+        self.main_window = None  # Reference to MainWindow
         self.setWindowTitle("Shop Management System")
         self.resize(550, 500)
         self.setup_ui()
@@ -68,13 +67,11 @@ class LoginForm(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout()
 
-        # Title Label
         self.label_title = QLabel('Login Page')
         self.label_title.setFont(QFont("Arial", 24))
         self.label_title.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.label_title)
 
-        # Username Label and Textbox
         self.label_username = QLabel('Username:')
         self.label_username.setFont(QFont("Arial", 20))
         self.textbox_username = QLineEdit()
@@ -82,7 +79,6 @@ class LoginForm(QWidget):
         layout.addWidget(self.label_username)
         layout.addWidget(self.textbox_username)
 
-        # Password Label and Textbox
         self.label_password = QLabel('Password:')
         self.label_password.setFont(QFont("Arial", 20))
         self.textbox_password = QLineEdit()
@@ -91,11 +87,9 @@ class LoginForm(QWidget):
         layout.addWidget(self.label_password)
         layout.addWidget(self.textbox_password)
 
-        # Spacer to push the login button to the bottom
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         layout.addItem(spacer)
 
-        # Login Button
         self.button_login = QPushButton('Login')
         self.button_login.setFixedHeight(40)
         self.button_login.clicked.connect(self.check_credentials)
@@ -109,34 +103,33 @@ class LoginForm(QWidget):
 
         if username == 'admin' and password == 'password':
             QMessageBox.information(self, 'Success', 'Login successful!')
-
-            # Close Login Window
-            self.close()
-
-            # Open Main Window
-            self.main_window = MainWindow()  # Create an instance of MainWindow
+            self.hide()  # Hide instead of close
+            if not self.main_window:
+                self.main_window = MainWindow(self)  # Pass self as parent
             self.main_window.show()
-
         else:
             QMessageBox.warning(self, 'Error', 'Invalid username or password')
+
+    def reset(self):
+        """Reset form for next login attempt"""
+        self.textbox_username.clear()
+        self.textbox_password.clear()
+        self.show()
 
 if __name__ == '__main__':
     # db_path = get_writable_db_path()
     # if db_path is None:
     #     QMessageBox.critical(None, "Error", "Could not copy database file")
     #     sys.exit(1)
-
-    # if not QSqlDatabase.contains("qt_sql_default_connection"):
     database = QSqlDatabase.addDatabase("QSQLITE")
     database.setDatabaseName("sms.db")
-    # database.setDatabaseName(db_path)
 
     if not database.open():
         QMessageBox.critical(None, "Database Error", "Could not open database")
         sys.exit(1)
 
     app = QApplication(sys.argv)
-    window =LoginForm()
+    window = LoginForm()
     window.show()
     
     exit_code = app.exec_()
