@@ -22,7 +22,10 @@ class AddStockDialog(QDialog):
         self.supplier_combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
 
         self.load_products()
-        self.load_suppliers()
+        # Connect product selection change to supplier loading
+        self.product_combo.currentIndexChanged.connect(self.update_suppliers)
+        # Initial load of suppliers based on first product
+        self.update_suppliers()
 
         layout = QFormLayout()
         layout.addRow("Product Name:", self.product_combo)
@@ -51,10 +54,30 @@ class AddStockDialog(QDialog):
             product_name = query.value(1)
             self.product_combo.addItem(product_name, product_id)
 
-    def load_suppliers(self):
+    def update_suppliers(self):
+        # Get the currently selected product ID
+        product_id = self.get_product_id()
+        if product_id is None:
+            return
+            
         self.supplier_combo.clear()
         self.supplier_combo.addItem("None", None)
-        query = QSqlQuery("SELECT SupplierID, SupplierName FROM Suppliers")
+        
+        # Query to get suppliers who have supplied this product
+        query = QSqlQuery()
+        query.prepare("""
+            SELECT DISTINCT s.SupplierID, s.SupplierName
+            FROM Suppliers s
+            INNER JOIN InventoryTransactions it ON s.SupplierID = it.SupplierID
+            WHERE it.ProductID = ?
+            ORDER BY s.SupplierName
+        """)
+        query.addBindValue(product_id)
+        
+        if not query.exec_():
+            print(f"Supplier query error: {query.lastError().text()}")
+            return
+            
         while query.next():
             supplier_id = query.value(0)
             supplier_name = query.value(1)
@@ -239,15 +262,15 @@ class StockPage(QWidget):
             self.load_table()
             QMessageBox.information(self, "Success", "Stock added successfully")
 
-def check_table_schema():
-    query = QSqlQuery()
-    for table in ["Product", "InventoryTransactions"]:
-        if query.exec_(f"PRAGMA table_info({table});"):
-            print(f"{table} table schema:")
-            while query.next():
-                print(f"Column: {query.value(1)}, Type: {query.value(2)}, NotNull: {query.value(3)}, Default: {query.value(4)}, PK: {query.value(5)}")
-        else:
-            print(f"Schema check error for {table}: {query.lastError().text()}")
+# def check_table_schema():
+#     query = QSqlQuery()
+#     for table in ["Product", "InventoryTransactions"]:
+#         if query.exec_(f"PRAGMA table_info({table});"):
+#             print(f"{table} table schema:")
+#             while query.next():
+#                 print(f"Column: {query.value(1)}, Type: {query.value(2)}, NotNull: {query.value(3)}, Default: {query.value(4)}, PK: {query.value(5)}")
+#         else:
+#             print(f"Schema check error for {table}: {query.lastError().text()}")
 
 # database = QSqlDatabase.addDatabase("QSQLITE")
 # database.setDatabaseName("sms.db")
