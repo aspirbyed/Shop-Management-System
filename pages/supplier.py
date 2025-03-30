@@ -1,6 +1,7 @@
 # Johan
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, \
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QHeaderView, QWidget, \
     QLabel, QPushButton, QLineEdit, QTableWidget, QMessageBox, QTableWidgetItem
+from PyQt5.QtCore import Qt
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 import sys
 
@@ -17,21 +18,38 @@ class SuppliersPage(QWidget):
 
         # Input fields for supplier details
         self.supplier_name = QLineEdit()
+        self.supplier_name.setStyleSheet("padding: 5px;")
+        self.supplier_name.setPlaceholderText("Enter Name...")
         self.supplier_contact = QLineEdit()
+        self.supplier_contact.setStyleSheet("padding: 5px;")
+        self.supplier_contact.setPlaceholderText("Enter Contact No...")
+        self.supplier_address = QLineEdit()
+        self.supplier_address.setStyleSheet("padding: 5px;")
+        self.supplier_address.setPlaceholderText("Enter Address...")
 
         # Buttons
         self.add_btn = QPushButton("Add Supplier")
-        self.update_btn = QPushButton("Update Supplier")
+        self.add_btn.setFixedSize(150,30)
         self.del_btn = QPushButton("Delete Supplier")
+        self.del_btn.setFixedSize(150,30)
         self.add_btn.clicked.connect(self.add_supplier)
-        self.update_btn.clicked.connect(self.update_supplier)
         self.del_btn.clicked.connect(self.delete_supplier)
 
         # Table to display suppliers
         self.table = QTableWidget()
         self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(["SupplierID", "Name", "Contact"])
+        self.table.setHorizontalHeaderLabels(["SupplierID", "Name", "Contact", "Address"])
         self.table.clicked.connect(self.load_selected_row)  # Load row data into fields when clicked
+
+        # Make the table read-only
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        # Make the entire row get selected when any item in it is clicked
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+
+        # Fit the table within the screen (remove horizontal scrollbar)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Stretch columns to fit the table width
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Optional: disable horizontal scrollbar
 
         # Layouts
         self.master_layout = QVBoxLayout()
@@ -39,18 +57,20 @@ class SuppliersPage(QWidget):
         self.row2 = QHBoxLayout()
         self.row3 = QHBoxLayout()
 
-        # Row 1: Supplier Name
         self.row1.addWidget(QLabel("Supplier Name:"))
-        self.row1.addWidget(self.supplier_name)
+        self.row1.addWidget(self.supplier_name, 1)
+        self.row1.addWidget(QLabel("Contact:"))
+        self.row1.addWidget(self.supplier_contact, 1)
+        self.row1.addWidget(QLabel("Address:"))
+        self.row1.addWidget(self.supplier_address, 2)
 
-        # Row 2: Contact
-        self.row2.addWidget(QLabel("Contact:"))
-        self.row2.addWidget(self.supplier_contact)
+        self.row1.addStretch()
+
 
         # Row 3: Buttons
         self.row3.addWidget(self.add_btn)
-        self.row3.addWidget(self.update_btn)
         self.row3.addWidget(self.del_btn)
+        self.row3.addStretch()
 
         self.back_btn.setFixedSize(200, 30)
         self.back_btn_layout = QHBoxLayout()
@@ -73,7 +93,7 @@ class SuppliersPage(QWidget):
     def load_table(self):
         """Load supplier data into the table."""
         self.table.setRowCount(0)
-        query = QSqlQuery("SELECT SupplierID, SupplierName, ContactNumber FROM Suppliers")
+        query = QSqlQuery("SELECT SupplierID, SupplierName, ContactNumber, Address FROM Suppliers")
         while query.next():
             row = self.table.rowCount()
             self.table.insertRow(row)
@@ -92,48 +112,23 @@ class SuppliersPage(QWidget):
         """Add a new supplier to the database."""
         name = self.supplier_name.text().strip()
         contact = self.supplier_contact.text().strip()
+        address = self.supplier_address.text().strip()
 
-        if not name or not contact:
+        if not name or not contact or not address:
             QMessageBox.warning(self, "Input Error", "Please enter both name and contact.")
             return
 
         query = QSqlQuery()
-        query.prepare("INSERT INTO Suppliers (SupplierName, ContactNumber) VALUES (?, ?)")
+        query.prepare("INSERT INTO Suppliers (SupplierName, ContactNumber, Address) VALUES (?, ?, ?)")
         query.addBindValue(name)
         query.addBindValue(contact)
+        query.addBindValue(address)
 
         if query.exec_():
             self.load_table()
             self.clear_fields()
         else:
             QMessageBox.critical(self, "Error", "Error adding supplier: " + query.lastError().text())
-
-    def update_supplier(self):
-        """Update the selected supplier's details."""
-        selected_row = self.table.currentRow()
-        if selected_row == -1:
-            QMessageBox.warning(self, "No Selection", "Please select a supplier to update.")
-            return
-
-        supplier_id = int(self.table.item(selected_row, 0).text())
-        name = self.supplier_name.text().strip()
-        contact = self.supplier_contact.text().strip()
-
-        if not name or not contact:
-            QMessageBox.warning(self, "Input Error", "Please enter both name and contact.")
-            return
-
-        query = QSqlQuery()
-        query.prepare("UPDATE Suppliers SET SupplierName = ?, ContactNumber = ? WHERE SupplierID = ?")
-        query.addBindValue(name)
-        query.addBindValue(contact)
-        query.addBindValue(supplier_id)
-
-        if query.exec_():
-            self.load_table()
-            self.clear_fields()
-        else:
-            QMessageBox.critical(self, "Error", "Error updating supplier: " + query.lastError().text())
 
     def delete_supplier(self):
         """Delete the selected supplier from the database."""
@@ -163,6 +158,7 @@ class SuppliersPage(QWidget):
         """Clear the input fields."""
         self.supplier_name.clear()
         self.supplier_contact.clear()
+        self.supplier_address.clear()
 
 # # Database Setup
 # database = QSqlDatabase.addDatabase("QSQLITE")

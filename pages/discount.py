@@ -17,6 +17,8 @@ class DiscountPage(QWidget):
         self.back_btn.clicked.connect(self.main_window.show_main)
 
         self.discount = QLineEdit()
+        self.discount.setStyleSheet("padding: 5px;")
+        self.discount.setPlaceholderText("Enter Discount Value...")
         
         self.add_btn = QPushButton("Add Discount")
         self.del_btn = QPushButton("Delete Discount")
@@ -69,7 +71,14 @@ class DiscountPage(QWidget):
             self.table.setItem(row, 1, QTableWidgetItem(str(query.value(1))))
 
     def add_discount(self):
-        discount = self.discount.text()
+        discount = self.discount.text().strip()
+        discount = self.discount.text().strip()
+        try:
+            discount = float(discount)
+            # print("Valid real number:", discount_value)
+        except ValueError:
+            QMessageBox.critical(self, "Error", "Invlaid Discount Value")
+            return
         query = QSqlQuery()
         query.prepare("INSERT INTO Discount (DiscountValue) VALUES (?)")
         query.addBindValue(discount)

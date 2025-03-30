@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, \
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, QHeaderView, \
     QLabel, QPushButton, QLineEdit, QTableWidget, QMessageBox, QTableWidgetItem, QScrollArea, QDialog, QFormLayout, QComboBox
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlError
 from PyQt5.QtCore import Qt, QDateTime
@@ -105,6 +105,7 @@ class StockPage(QWidget):
         self.search_field.textChanged.connect(self.filter_table)
         
         self.add_btn = QPushButton("Add Stock")
+        self.add_btn.setFixedSize(100,30)
         # self.back_btn = QPushButton("Back")
         
         self.add_btn.clicked.connect(self.show_add_stock_dialog)
@@ -114,6 +115,16 @@ class StockPage(QWidget):
         self.table = QTableWidget()
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["ProductID", "ProductName", "StockLevel", "RestockLevel"])
+
+        # Make the table read-only
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        # Make the entire row get selected when any item in it is clicked
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+
+        # Fit the table within the screen (remove horizontal scrollbar)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Stretch columns to fit the table width
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Optional: disable horizontal scrollbar
 
         # Add a label to explain the highlighting
         self.highlight_label = QLabel("Highlighted rows indicate stock level below restock level")
@@ -146,8 +157,7 @@ class StockPage(QWidget):
         self.master_layout.addLayout(self.back_btn_layout)
 
         self.search_field.setStyleSheet("padding: 5px;")
-        self.add_btn.setStyleSheet("padding: 5px;")
-        self.back_btn.setStyleSheet("padding: 5px;")
+        # self.add_btn.setStyleSheet("padding: 5px;")
 
         self.setLayout(self.master_layout)
         self.load_table()
@@ -260,28 +270,5 @@ class StockPage(QWidget):
             QMessageBox.critical(self, "Error", f"Error adding transaction: {error}")
         else:
             self.load_table()
+
             QMessageBox.information(self, "Success", "Stock added successfully")
-
-# def check_table_schema():
-#     query = QSqlQuery()
-#     for table in ["Product", "InventoryTransactions"]:
-#         if query.exec_(f"PRAGMA table_info({table});"):
-#             print(f"{table} table schema:")
-#             while query.next():
-#                 print(f"Column: {query.value(1)}, Type: {query.value(2)}, NotNull: {query.value(3)}, Default: {query.value(4)}, PK: {query.value(5)}")
-#         else:
-#             print(f"Schema check error for {table}: {query.lastError().text()}")
-
-# database = QSqlDatabase.addDatabase("QSQLITE")
-# database.setDatabaseName("sms.db")
-
-# if not database.open():
-#     QMessageBox.critical(None, "Error", "Could not open database")
-#     sys.exit(1)
-
-# if __name__ == "__main__":
-#     app = QApplication([])
-#     check_table_schema()
-#     window = StockPage()
-#     window.show()
-#     app.exec_()

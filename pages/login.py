@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QLineEdit, QPushButton,
-    QVBoxLayout, QSpacerItem, QSizePolicy, QMessageBox
+    QVBoxLayout, QSpacerItem, QSizePolicy, QMessageBox, QHBoxLayout
 )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
@@ -61,41 +61,64 @@ class LoginForm(QWidget):
         super().__init__()
         self.main_window = None  # Reference to MainWindow
         self.setWindowTitle("Shop Management System")
-        self.resize(550, 500)
+        self.setGeometry(100, 100, 800, 600)
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout()
+        # Main vertical layout for centering
+        main_layout = QVBoxLayout()
+        main_layout.setAlignment(Qt.AlignCenter)
 
+        # Inner vertical layout for form elements
+        form_layout = QVBoxLayout()
+
+        # Title
         self.label_title = QLabel('Login Page')
         self.label_title.setFont(QFont("Arial", 24))
         self.label_title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.label_title)
+        # form_layout.addWidget(self.label_title)
 
+        # Username Field
         self.label_username = QLabel('Username:')
-        self.label_username.setFont(QFont("Arial", 20))
+        self.label_username.setFont(QFont("Arial", 16))
         self.textbox_username = QLineEdit()
         self.textbox_username.setPlaceholderText('Enter your username')
-        layout.addWidget(self.label_username)
-        layout.addWidget(self.textbox_username)
+        self.textbox_username.setStyleSheet('padding: 5px;')
+        form_layout.addWidget(self.label_username)
+        form_layout.addWidget(self.textbox_username)
 
+        # Password Field
         self.label_password = QLabel('Password:')
-        self.label_password.setFont(QFont("Arial", 20))
+        self.label_password.setFont(QFont("Arial", 16))
         self.textbox_password = QLineEdit()
         self.textbox_password.setPlaceholderText('Enter your password')
         self.textbox_password.setEchoMode(QLineEdit.Password)
-        layout.addWidget(self.label_password)
-        layout.addWidget(self.textbox_password)
+        self.textbox_password.setStyleSheet('padding: 5px;')
+        form_layout.addWidget(self.label_password)
+        form_layout.addWidget(self.textbox_password)
 
-        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        layout.addItem(spacer)
+        # Spacer for better positioning
+        form_layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
+        # Login Button (Bigger)
         self.button_login = QPushButton('Login')
-        self.button_login.setFixedHeight(40)
+        self.button_login.setMinimumSize(250, 50)
         self.button_login.clicked.connect(self.check_credentials)
-        layout.addWidget(self.button_login)
+        form_layout.addWidget(self.button_login, alignment=Qt.AlignCenter)
 
-        self.setLayout(layout)
+        # Add stretchers for vertical centering
+        main_layout.addStretch()
+        main_layout.addWidget(self.label_title)
+        main_layout.addLayout(form_layout)
+        main_layout.addStretch()
+
+        # Wrap inside an HBox for horizontal centering
+        wrapper_layout = QHBoxLayout()
+        wrapper_layout.addStretch()
+        wrapper_layout.addLayout(main_layout)
+        wrapper_layout.addStretch()
+
+        self.setLayout(wrapper_layout)
 
     def check_credentials(self):
         username = self.textbox_username.text()

@@ -149,7 +149,9 @@ class ProductPage(QWidget):
         self.search_field.textChanged.connect(self.filter_table)
         
         self.add_btn = QPushButton("Add Product")
+        self.add_btn.setFixedSize(150, 30)
         self.del_btn = QPushButton("Delete Product")
+        self.del_btn.setFixedSize(150, 30)
         self.back_btn = QPushButton("Back to Main Page")
         self.back_btn.clicked.connect(self.main_window.show_main)
         

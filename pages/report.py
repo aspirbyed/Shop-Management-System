@@ -1,10 +1,10 @@
 # Import Modules
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, QHeaderView,\
     QLabel, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QComboBox, QDialog,\
-    QLineEdit, QDialogButtonBox, QSpinBox, QCalendarWidget
+    QLineEdit, QDialogButtonBox, QSpinBox, QCalendarWidget, QSizePolicy, QSpacerItem
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 from PyQt5.QtCore import Qt, QDateTime
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QFont
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
@@ -121,46 +121,57 @@ class YearlyReportDialog(QDialog):
         """Return the selected year as a string."""
         return str(self.year_spin.value())
 
-class ReportPage(QDialog):
+class ReportPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.main_window = parent
-
         self.setWindowTitle("Report Page")
-        self.setFixedWidth(200)
-        self.setFixedHeight(200)
+        self.resize(870, 600)
 
+        # Back button (always at the bottom)
         self.back_btn = QPushButton("Back to Main Page")
+        self.back_btn.setFixedSize(200, 30)
         self.back_btn.clicked.connect(self.main_window.show_main)
 
+        # Bigger report buttons
         self.daily_btn = QPushButton("Daily Report")
         self.monthly_btn = QPushButton("Monthly Report")
         self.yearly_btn = QPushButton("Yearly Report")
 
+        # Set minimum size for bigger buttons
+        for btn in [self.daily_btn, self.monthly_btn, self.yearly_btn]:
+            btn.setMinimumSize(250, 60)  # Bigger size
+
+        # Connect buttons to functions
         self.daily_btn.clicked.connect(self.daily_report)
         self.monthly_btn.clicked.connect(self.monthly_report)
         self.yearly_btn.clicked.connect(self.yearly_report)
 
+        # Layouts
         self.master_layout = QVBoxLayout()
-        self.row1 = QHBoxLayout()
-        self.row2 = QHBoxLayout()
-        self.row3 = QHBoxLayout()
 
-        self.row1.addWidget(self.daily_btn)
-        self.row2.addWidget(self.monthly_btn)
-        self.row3.addWidget(self.yearly_btn)
+        # Title
+        self.title = QLabel("Generate Report")
+        self.title.setFont(QFont("Arial", 24))
+        self.title.setAlignment(Qt.AlignCenter)
 
-        self.back_btn.setFixedSize(200, 30)
+        # Add buttons on separate lines
+        self.master_layout.addWidget(self.title)
+        self.master_layout.addWidget(self.daily_btn)
+        self.master_layout.addWidget(self.monthly_btn)
+        self.master_layout.addWidget(self.yearly_btn)
+
+        # Spacer to push "Back" button to the bottom
+        self.master_layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
+        # Back button at the bottom
         self.back_btn_layout = QHBoxLayout()
         self.back_btn_layout.addStretch()
         self.back_btn_layout.addWidget(self.back_btn)
         self.back_btn_layout.addStretch()
-
-        self.master_layout.addWidget(QLabel("Generate Report"))
-        self.master_layout.addLayout(self.row1)
-        self.master_layout.addLayout(self.row2)
-        self.master_layout.addLayout(self.row3)
         self.master_layout.addLayout(self.back_btn_layout)
+
+        # Set main layout
         self.setLayout(self.master_layout)
     
     def daily_report(self):

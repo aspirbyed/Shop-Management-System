@@ -1,11 +1,10 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QPushButton, QGridLayout, QLabel, QVBoxLayout,
     QMainWindow, QStackedWidget, QTableWidget, QMessageBox, QTableWidgetItem,
-    QDialog, QFormLayout, QLineEdit, QHBoxLayout, QScrollArea, QComboBox
+    QDialog, QFormLayout, QLineEdit, QHBoxLayout, QScrollArea, QComboBox, QSizePolicy, QSpacerItem
 )
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlError
-import sys
 
 # Import the page classes
 from billing import BillingPage
@@ -15,6 +14,7 @@ from stocks import StockPage
 from category import CategoryPage
 from products import ProductPage
 from supplier import SuppliersPage
+
 
 class MainPage(QWidget):
     def __init__(self, parent=None):
@@ -31,16 +31,30 @@ class MainPage(QWidget):
         self.report_btn = QPushButton("Report Page")
         self.logout_btn = QPushButton("Logout")
 
+        # Button List
+        self.buttons = [
+            self.billing_btn, self.discount_btn, self.category_btn,
+            self.products_btn, self.stocks_btn, self.suppliers_btn,
+            self.report_btn, self.logout_btn
+        ]
+
+        # Set a minimum size for all navigation buttons
+        for btn in self.buttons:
+            btn.setMinimumSize(250, 60)  # Bigger size
+
+        # Remove any styling to keep default system colors
+        self.setStyleSheet("")
+
         # Add buttons to the layout
-        layout.addWidget(self.billing_btn)
-        layout.addWidget(self.discount_btn)
-        layout.addWidget(self.category_btn)
-        layout.addWidget(self.products_btn)
-        layout.addWidget(self.stocks_btn)
-        layout.addWidget(self.suppliers_btn)
-        layout.addWidget(self.report_btn)
+        for btn in self.buttons:
+            layout.addWidget(btn)
+
+        # Spacer to push Logout button to the bottom
+        layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
+        # Logout button at the bottom
+        self.logout_btn.setMinimumSize(250, 60)
         layout.addWidget(self.logout_btn)
-        layout.addStretch()
 
 class MainWindow(QMainWindow):
     def __init__(self, login_form=None):

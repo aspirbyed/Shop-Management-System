@@ -17,10 +17,16 @@ class CategoryPage(QWidget):
         self.back_btn.clicked.connect(self.main_window.show_main)
 
         self.category_name = QLineEdit()
+        self.category_name.setStyleSheet("padding: 5px;")
+        self.category_name.setPlaceholderText("Enter Category Name...")
         self.aisle_number = QLineEdit()
+        self.aisle_number.setStyleSheet("padding: 5px;")
+        self.aisle_number.setPlaceholderText("Enter Aisle Number...")
         
         self.add_btn = QPushButton("Add Category")
+        self.add_btn.setFixedSize(150,30)
         self.del_btn = QPushButton("Delete Category")
+        self.del_btn.setFixedSize(150,30)
         self.add_btn.clicked.connect(self.add_category)
         self.del_btn.clicked.connect(self.delete_category)
 
@@ -48,6 +54,7 @@ class CategoryPage(QWidget):
         self.row1.addWidget(self.aisle_number)
         self.row2.addWidget(self.add_btn)
         self.row2.addWidget(self.del_btn)
+        self.row2.addStretch()
 
         self.back_btn.setFixedSize(200, 30)
         self.back_btn_layout = QHBoxLayout()
