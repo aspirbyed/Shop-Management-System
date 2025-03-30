@@ -37,7 +37,7 @@ class SuppliersPage(QWidget):
 
         # Table to display suppliers
         self.table = QTableWidget()
-        self.table.setColumnCount(3)
+        self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["SupplierID", "Name", "Contact", "Address"])
         self.table.clicked.connect(self.load_selected_row)  # Load row data into fields when clicked
 
@@ -100,6 +100,7 @@ class SuppliersPage(QWidget):
             self.table.setItem(row, 0, QTableWidgetItem(str(query.value(0))))  # supplierID
             self.table.setItem(row, 1, QTableWidgetItem(query.value(1)))       # supplierName
             self.table.setItem(row, 2, QTableWidgetItem(query.value(2)))       # supplierContact
+            self.table.setItem(row, 3, QTableWidgetItem(query.value(3)))  
 
     def load_selected_row(self):
         """Populate input fields with data from the selected row."""
