@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, \
     QLabel, QPushButton, QLineEdit, QTableWidget, QMessageBox, QTableWidgetItem, QScrollArea, QDialog, QFormLayout, QComboBox
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlError
-from PyQt5.QtCore import Qt,QDateTime
+from PyQt5.QtCore import Qt, QDateTime
+from PyQt5.QtGui import QColor, QBrush
 from datetime import datetime
 import sys
 
@@ -91,6 +92,10 @@ class StockPage(QWidget):
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["ProductID", "ProductName", "StockLevel", "RestockLevel"])
 
+        # Add a label to explain the highlighting
+        self.highlight_label = QLabel("Highlighted rows indicate stock level below restock level")
+        self.highlight_label.setStyleSheet("color: #0066CC; font-style: italic;")
+
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidget(self.table)
         self.scroll_area.setWidgetResizable(True)
@@ -113,6 +118,7 @@ class StockPage(QWidget):
         self.back_btn_layout.addStretch()
 
         self.master_layout.addLayout(self.row1)
+        self.master_layout.addWidget(self.highlight_label)
         self.master_layout.addWidget(self.scroll_area)
         self.master_layout.addLayout(self.back_btn_layout)
 
@@ -143,8 +149,34 @@ class StockPage(QWidget):
         while query.next():
             row = self.table.rowCount()
             self.table.insertRow(row)
-            for i in range(4):
-                self.table.setItem(row, i, QTableWidgetItem(str(query.value(i) or "")))
+            
+            product_id = query.value(0)
+            product_name = query.value(1)
+            stock_level = int(query.value(2) or 0)
+            restock_level = int(query.value(3) or 0)
+            
+            # Create table items with black text
+            item0 = QTableWidgetItem(str(product_id))
+            item1 = QTableWidgetItem(product_name)
+            item2 = QTableWidgetItem(str(stock_level))
+            item3 = QTableWidgetItem(str(restock_level))
+            
+            # Set items to the table
+            self.table.setItem(row, 0, item0)
+            self.table.setItem(row, 1, item1)
+            self.table.setItem(row, 2, item2)
+            self.table.setItem(row, 3, item3)
+            
+            # Highlight the row if stock level is below restock level
+            if stock_level < restock_level:
+                # Use a light blue background for highlighting
+                highlight_color = QColor(200, 220, 255)  # Light blue
+                
+                for col in range(4):
+                    # Set background color to blue
+                    self.table.item(row, col).setBackground(highlight_color)
+                    # Ensure text color remains black
+                    self.table.item(row, col).setForeground(QBrush(Qt.black))
 
     def filter_table(self, text):
         self.load_table(text)
