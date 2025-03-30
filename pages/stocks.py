@@ -22,8 +22,6 @@ class AddStockDialog(QDialog):
         self.supplier_combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
 
         self.load_products()
-        # Connect product selection change to supplier loading
-        self.product_combo.currentIndexChanged.connect(self.update_suppliers)
         # Initial load of suppliers based on first product
         self.update_suppliers()
 
@@ -66,11 +64,13 @@ class AddStockDialog(QDialog):
         # Query to get suppliers who have supplied this product
         query = QSqlQuery()
         query.prepare("""
-            SELECT DISTINCT s.SupplierID, s.SupplierName
+            SELECT s.SupplierID, s.SupplierName
             FROM Suppliers s
-            INNER JOIN InventoryTransactions it ON s.SupplierID = it.SupplierID
-            WHERE it.ProductID = ?
-            ORDER BY s.SupplierName
+            WHERE s.SupplierID IN (
+                      SELECT p.SupplierID
+                      FROM Product p
+                      WHERE p.ProductID = ?
+                      )
         """)
         query.addBindValue(product_id)
         
@@ -162,7 +162,7 @@ class StockPage(QWidget):
         self.setLayout(self.master_layout)
         self.load_table()
 
-    def load_table(self, filter_text=""):
+    def load_table(self, filter_text=None):
         self.table.setRowCount(0)
         query = QSqlQuery()
         if filter_text:

@@ -106,9 +106,11 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentWidget(self.billing_page)
 
     def show_products(self):
+        self.products_page.load_table()
         self.stack.setCurrentWidget(self.products_page)
 
     def show_stocks(self):
+        self.stocks_page.load_table()
         self.stack.setCurrentWidget(self.stocks_page)
 
     def show_report(self):
