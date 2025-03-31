@@ -100,7 +100,7 @@ class SuppliersPage(QWidget):
             self.table.setItem(row, 0, QTableWidgetItem(str(query.value(0))))  # supplierID
             self.table.setItem(row, 1, QTableWidgetItem(query.value(1)))       # supplierName
             self.table.setItem(row, 2, QTableWidgetItem(query.value(2)))       # supplierContact
-            self.table.setItem(row, 3, QTableWidgetItem(query.value(3)))  
+            self.table.setItem(row, 3, QTableWidgetItem(query.value(3)))       # supplier address 
 
     def load_selected_row(self):
         """Populate input fields with data from the selected row."""
@@ -108,6 +108,8 @@ class SuppliersPage(QWidget):
         if selected_row != -1:
             self.supplier_name.setText(self.table.item(selected_row, 1).text())
             self.supplier_contact.setText(self.table.item(selected_row, 2).text())
+            self.supplier_address.setText(self.table.item(selected_row, 3).text())
+
 
     def add_supplier(self):
         """Add a new supplier to the database."""
