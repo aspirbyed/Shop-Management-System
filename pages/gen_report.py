@@ -45,7 +45,8 @@ class SalesAnalyzer:
         """Load data from the SQLite database and preprocess it."""
         try:
             # Connect to the SQLite database
-            base_path = os.path.dirname(sys.executable)
+            # base_path = os.path.dirname(sys.executable)
+            base_path = os.getcwd()
             db_path = os.path.join(base_path, "sms.db")
             conn = sqlite3.connect(db_path)
             print(f"Successfully connected to the database: {db_path}")
