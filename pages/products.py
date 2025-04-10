@@ -280,8 +280,9 @@ class ProductPage(QWidget):
         
         self.table = QTableWidget()
         self.table.setColumnCount(8)
-        self.table.setHorizontalHeaderLabels(["Product Name", "Category", "Price",
-                                              "Stock Level", "Restock Level", "Supplier", "Discount", "ProductID"])
+        # Moved ProductID to first position
+        self.table.setHorizontalHeaderLabels(["ProductID", "Product Name", "Category", "Price",
+                                              "Stock Level", "Restock Level", "Supplier", "Discount"])
 
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
@@ -327,11 +328,19 @@ class ProductPage(QWidget):
     def load_table(self, filter_text=""):
         self.table.setRowCount(0)
         query = QSqlQuery()
+        # Reordered columns to put ProductID first
         if filter_text:
-            query.prepare("SELECT ProductName, CategoryID, Price, StockLevel, RestockLevel, SupplierID, DiscountID, ProductID FROM Product WHERE ProductName LIKE ?")
+            query.prepare("""
+                SELECT ProductID, ProductName, CategoryID, Price, StockLevel, RestockLevel, SupplierID, DiscountID 
+                FROM Product 
+                WHERE ProductName LIKE ?
+            """)
             query.addBindValue(f"%{filter_text}%")
         else:
-            query.prepare("SELECT ProductName, CategoryID, Price, StockLevel, RestockLevel, SupplierID, DiscountID, ProductID FROM Product")
+            query.prepare("""
+                SELECT ProductID, ProductName, CategoryID, Price, StockLevel, RestockLevel, SupplierID, DiscountID 
+                FROM Product
+            """)
         
         if not query.exec_():
             print(f"Load table error: {query.lastError().text()}")
@@ -340,8 +349,15 @@ class ProductPage(QWidget):
         while query.next():
             row = self.table.rowCount()
             self.table.insertRow(row)
-            for i in range(8):
-                self.table.setItem(row, i, QTableWidgetItem(str(query.value(i) or "")))
+            # Mapping columns according to new order
+            self.table.setItem(row, 0, QTableWidgetItem(str(query.value(0) or "")))  # ProductID
+            self.table.setItem(row, 1, QTableWidgetItem(str(query.value(1) or "")))  # ProductName
+            self.table.setItem(row, 2, QTableWidgetItem(str(query.value(2) or "")))  # CategoryID
+            self.table.setItem(row, 3, QTableWidgetItem(str(query.value(3) or "")))  # Price
+            self.table.setItem(row, 4, QTableWidgetItem(str(query.value(4) or "")))  # StockLevel
+            self.table.setItem(row, 5, QTableWidgetItem(str(query.value(5) or "")))  # RestockLevel
+            self.table.setItem(row, 6, QTableWidgetItem(str(query.value(6) or "")))  # SupplierID
+            self.table.setItem(row, 7, QTableWidgetItem(str(query.value(7) or "")))  # DiscountID
 
     def filter_table(self, text):
         self.load_table(text)
@@ -378,7 +394,6 @@ class ProductPage(QWidget):
             )
 
     def add_product(self, name, category_id, price, stock, restock, supplier_id, discount_id):
-        # Check if product name already exists
         check_query = QSqlQuery()
         check_query.prepare("SELECT COUNT(*) FROM Product WHERE ProductName = ?")
         check_query.addBindValue(name)
@@ -452,7 +467,6 @@ class ProductPage(QWidget):
             QMessageBox.warning(self, "Error", "No product selected")
             return
 
-        # Check if new name conflicts with existing product (excluding current product)
         if name != product_id:
             check_query = QSqlQuery()
             check_query.prepare("SELECT COUNT(*) FROM Product WHERE ProductName = ? AND ProductName != ?")
@@ -497,7 +511,7 @@ class ProductPage(QWidget):
         if selected_row == -1:
             QMessageBox.warning(self, "No row selected", "Please select a row to delete")
             return
-        product_name = self.table.item(selected_row, 0).text()
+        product_name = self.table.item(selected_row, 1).text()  # Changed to column 1 since ProductID is now 0
 
         confirm = QMessageBox.question(self, "Are you sure?", f"Delete product '{product_name}'?", 
                                        QMessageBox.Yes | QMessageBox.No)
