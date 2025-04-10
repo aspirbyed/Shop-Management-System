@@ -32,7 +32,7 @@ class CategoryPage(QWidget):
 
         self.table = QTableWidget()
         self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(["Category Name", "Aisle Number", "Category ID"])  # Updated headers
+        self.table.setHorizontalHeaderLabels(["Category ID","Category Name", "Aisle Number"])  # Updated headers
 
         # Make the table read-only
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -73,7 +73,7 @@ class CategoryPage(QWidget):
 
     def load_table(self):
         self.table.setRowCount(0)
-        query = QSqlQuery("SELECT CategoryName, AisleNumber, CategoryID FROM Category")  # Updated query order
+        query = QSqlQuery("SELECT CategoryID, CategoryName, AisleNumber FROM Category")  # Updated query order
         while query.next():
             row = self.table.rowCount()
             self.table.insertRow(row)
