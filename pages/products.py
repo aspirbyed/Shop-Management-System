@@ -10,18 +10,14 @@ class AddProductDialog(QDialog):
         self.setWindowTitle("Add New Product")
         self.setFixedSize(400, 300)
 
-        # Keep QLineEdit for these fields
         self.product_name = QLineEdit()
         self.price = QLineEdit()
         self.stock_level = QLineEdit()
         self.restock_level = QLineEdit()
-
-        # Replace QLineEdit with QComboBox for these fields
         self.category_combo = QComboBox()
         self.supplier_combo = QComboBox()
         self.discount_combo = QComboBox()
 
-        # Set up dropdown properties
         self.category_combo.setMaxVisibleItems(5)
         self.supplier_combo.setMaxVisibleItems(5)
         self.discount_combo.setMaxVisibleItems(5)
@@ -29,12 +25,10 @@ class AddProductDialog(QDialog):
         self.supplier_combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
         self.discount_combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
 
-        # Load data into dropdowns
         self.load_categories()
         self.load_suppliers()
         self.load_discounts()
 
-        # Layout
         layout = QFormLayout()
         layout.addRow("Product Name:", self.product_name)
         layout.addRow("Category:", self.category_combo)
@@ -59,9 +53,8 @@ class AddProductDialog(QDialog):
         self.setLayout(main_layout)
 
     def load_categories(self):
-        """Load category IDs and names into the combo box"""
         self.category_combo.clear()
-        self.category_combo.addItem("None", None)  # Optional: Add a "None" option
+        self.category_combo.addItem("None", None)
         query = QSqlQuery("SELECT CategoryID, CategoryName FROM Category")
         while query.next():
             category_id = query.value(0)
@@ -69,9 +62,8 @@ class AddProductDialog(QDialog):
             self.category_combo.addItem(category_name, category_id)
 
     def load_suppliers(self):
-        """Load supplier IDs and names into the combo box"""
         self.supplier_combo.clear()
-        self.supplier_combo.addItem("None", None)  # Optional: Add a "None" option
+        self.supplier_combo.addItem("None", None)
         query = QSqlQuery("SELECT SupplierID, SupplierName FROM Suppliers")
         while query.next():
             supplier_id = query.value(0)
@@ -79,9 +71,8 @@ class AddProductDialog(QDialog):
             self.supplier_combo.addItem(supplier_name, supplier_id)
 
     def load_discounts(self):
-        """Load discount IDs and values into the combo box"""
         self.discount_combo.clear()
-        self.discount_combo.addItem("None", None)  # Optional: Add a "None" option
+        self.discount_combo.addItem("None", None)
         query = QSqlQuery("SELECT DiscountID, DiscountValue FROM Discount")
         while query.next():
             discount_id = query.value(0)
@@ -136,6 +127,140 @@ class DeleteProductDialog(QDialog):
     def get_selected_product_id(self):
         return self.product_combo.currentData()
 
+class UpdateProductDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Update Product")
+        self.setFixedSize(400, 450)  # Increased size for new fields
+
+        self.product_combo = QComboBox()
+        self.product_combo.setMaxVisibleItems(5)
+        self.product_combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
+        
+        self.product_name = QLineEdit()
+        self.price = QLineEdit()
+        self.restock_level = QLineEdit()  # Added restock level
+        self.supplier_combo = QComboBox()
+        self.category_combo = QComboBox()
+        self.discount_combo = QComboBox()  # Added discount
+        
+        self.supplier_combo.setMaxVisibleItems(5)
+        self.category_combo.setMaxVisibleItems(5)
+        self.discount_combo.setMaxVisibleItems(5)
+        self.supplier_combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
+        self.category_combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
+        self.discount_combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
+
+        self.load_products()
+        self.load_suppliers()
+        self.load_categories()
+        self.load_discounts()
+        
+        self.product_combo.currentIndexChanged.connect(self.populate_fields)
+
+        layout = QFormLayout()
+        layout.addRow("Select Product:", self.product_combo)
+        layout.addRow("Product Name:", self.product_name)
+        layout.addRow("Price:", self.price)
+        layout.addRow("Restock Level:", self.restock_level)  # Added to layout
+        layout.addRow("Supplier:", self.supplier_combo)
+        layout.addRow("Category:", self.category_combo)
+        layout.addRow("Discount:", self.discount_combo)  # Added to layout
+
+        self.button_box = QHBoxLayout()
+        self.ok_btn = QPushButton("Update")
+        self.cancel_btn = QPushButton("Cancel")
+        self.button_box.addWidget(self.ok_btn)
+        self.button_box.addWidget(self.cancel_btn)
+
+        self.ok_btn.clicked.connect(self.accept)
+        self.cancel_btn.clicked.connect(self.reject)
+
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(layout)
+        main_layout.addLayout(self.button_box)
+        self.setLayout(main_layout)
+
+    def load_products(self):
+        self.product_combo.clear()
+        query = QSqlQuery("SELECT ProductID, ProductName FROM Product")
+        while query.next():
+            product_id = query.value(0)
+            product_name = query.value(1)
+            self.product_combo.addItem(f"{product_id} - {product_name}", product_id)
+
+    def load_suppliers(self):
+        self.supplier_combo.clear()
+        self.supplier_combo.addItem("None", None)
+        query = QSqlQuery("SELECT SupplierID, SupplierName FROM Suppliers")
+        while query.next():
+            supplier_id = query.value(0)
+            supplier_name = query.value(1)
+            self.supplier_combo.addItem(supplier_name, supplier_id)
+
+    def load_categories(self):
+        self.category_combo.clear()
+        self.category_combo.addItem("None", None)
+        query = QSqlQuery("SELECT CategoryID, CategoryName FROM Category")
+        while query.next():
+            category_id = query.value(0)
+            category_name = query.value(1)
+            self.category_combo.addItem(category_name, category_id)
+
+    def load_discounts(self):
+        self.discount_combo.clear()
+        self.discount_combo.addItem("None", None)
+        query = QSqlQuery("SELECT DiscountID, DiscountValue FROM Discount")
+        while query.next():
+            discount_id = query.value(0)
+            discount_value = query.value(1)
+            self.discount_combo.addItem(str(discount_value), discount_id)
+
+    def populate_fields(self):
+        product_id = self.product_combo.currentData()
+        if product_id:
+            query = QSqlQuery()
+            query.prepare("""
+                SELECT ProductName, Price, SupplierID, CategoryID, RestockLevel, DiscountID 
+                FROM Product 
+                WHERE ProductID = ?
+            """)
+            query.addBindValue(product_id)
+            if query.exec_() and query.next():
+                self.product_name.setText(query.value(0) or "")
+                self.price.setText(str(query.value(1) or "0.0"))
+                self.restock_level.setText(str(query.value(4) or "0"))  # Populate restock level
+                self.supplier_combo.setCurrentIndex(
+                    self.supplier_combo.findData(query.value(2)) if query.value(2) else 0
+                )
+                self.category_combo.setCurrentIndex(
+                    self.category_combo.findData(query.value(3)) if query.value(3) else 0
+                )
+                self.discount_combo.setCurrentIndex(
+                    self.discount_combo.findData(query.value(5)) if query.value(5) else 0
+                )
+
+    def get_product_id(self):
+        return self.product_combo.currentData()
+
+    def get_product_name(self):
+        return self.product_name.text()
+
+    def get_price(self):
+        return self.price.text()
+
+    def get_restock_level(self):
+        return self.restock_level.text()
+
+    def get_supplier_id(self):
+        return self.supplier_combo.currentData()
+
+    def get_category_id(self):
+        return self.category_combo.currentData()
+
+    def get_discount_id(self):
+        return self.discount_combo.currentData()
+
 class ProductPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -152,27 +277,24 @@ class ProductPage(QWidget):
         self.add_btn.setFixedSize(150, 30)
         self.del_btn = QPushButton("Delete Product")
         self.del_btn.setFixedSize(150, 30)
+        self.update_btn = QPushButton("Update Product")
+        self.update_btn.setFixedSize(150, 30)
         self.back_btn = QPushButton("Back to Main Page")
         self.back_btn.clicked.connect(self.main_window.show_main)
         
         self.add_btn.clicked.connect(self.show_add_product_dialog)
         self.del_btn.clicked.connect(self.show_delete_product_dialog)
+        self.update_btn.clicked.connect(self.show_update_product_dialog)
         
         self.table = QTableWidget()
         self.table.setColumnCount(8)
         self.table.setHorizontalHeaderLabels(["ProductID", "Product Name", "Category", "Price",
                                               "Stock Level", "Restock Level", "Supplier ID", "Discount ID"])
 
-        # Make the table read-only
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
-
-        # Make the entire row get selected when any item in it is clicked
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
-
-        # Fit the table within the screen (remove horizontal scrollbar)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Stretch columns to fit the table width
-        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Optional: disable horizontal scrollbar
-
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidget(self.table)
@@ -189,6 +311,7 @@ class ProductPage(QWidget):
         self.row1.addWidget(self.search_field)
         self.row1.addWidget(self.add_btn)
         self.row1.addWidget(self.del_btn)
+        self.row1.addWidget(self.update_btn)
 
         self.back_btn.setFixedSize(200, 30)
         self.back_btn_layout = QHBoxLayout()
@@ -203,6 +326,7 @@ class ProductPage(QWidget):
         self.search_field.setStyleSheet("padding: 5px;")
         self.add_btn.setStyleSheet("padding: 5px;")
         self.del_btn.setStyleSheet("padding: 5px;")
+        self.update_btn.setStyleSheet("padding: 5px;")
         self.back_btn.setStyleSheet("padding: 5px;")
 
         self.setLayout(self.master_layout)
@@ -247,6 +371,19 @@ class ProductPage(QWidget):
         dialog = DeleteProductDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             self.delete_product(dialog.get_selected_product_id())
+
+    def show_update_product_dialog(self):
+        dialog = UpdateProductDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.update_product(
+                dialog.get_product_id(),
+                dialog.get_product_name(),
+                dialog.get_price(),
+                dialog.get_restock_level(),
+                dialog.get_supplier_id(),
+                dialog.get_category_id(),
+                dialog.get_discount_id()
+            )
 
     def add_product(self, name, category_id, price, stock, restock, supplier_id, discount_id):
         query = QSqlQuery()
@@ -305,6 +442,40 @@ class ProductPage(QWidget):
             self.load_table()
             QMessageBox.information(self, "Success", "Product deleted successfully")
 
+    def update_product(self, product_id, name, price, restock_level, supplier_id, category_id, discount_id):
+        if not product_id:
+            QMessageBox.warning(self, "Error", "No product selected")
+            return
+
+        try:
+            price = float(price.strip()) if price.strip() else None
+            restock_level = int(restock_level.strip()) if restock_level.strip() else None
+        except ValueError as e:
+            QMessageBox.critical(self, "Error", f"Invalid input: {e}")
+            return
+
+        query = QSqlQuery()
+        query.prepare("""
+            UPDATE Product 
+            SET ProductName = ?, Price = ?, RestockLevel = ?, SupplierID = ?, CategoryID = ?, DiscountID = ?
+            WHERE ProductID = ?
+        """)
+        
+        name = name.strip() if name.strip() else None
+        query.addBindValue(name if name is not None else "")
+        query.addBindValue(price if price is not None else 0.0)
+        query.addBindValue(restock_level if restock_level is not None else 0)
+        query.addBindValue(supplier_id if supplier_id is not None else None)
+        query.addBindValue(category_id if category_id is not None else None)
+        query.addBindValue(discount_id if discount_id is not None else None)
+        query.addBindValue(product_id)
+
+        if not query.exec_():
+            QMessageBox.critical(self, "Error", f"Error updating product: {query.lastError().text()}")
+        else:
+            self.load_table()
+            QMessageBox.information(self, "Success", "Product updated successfully")
+
     def delete_discount(self):
         selected_row = self.table.currentRow()
         if selected_row == -1:
@@ -335,24 +506,24 @@ def check_table_schema():
     else:
         print(f"Schema check error: {query.lastError().text()}")
 
-def create_product_table():
-    query = QSqlQuery()
-    success = query.exec_("""
-        CREATE TABLE IF NOT EXISTS Product (
-            ProductID INTEGER PRIMARY KEY AUTOINCREMENT,
-            ProductName TEXT NOT NULL,
-            Category TEXT NOT NULL,
-            Price REAL NOT NULL,
-            StockLevel INTEGER NOT NULL,
-            RestockLevel INTEGER NOT NULL,
-            SupplierID INTEGER,
-            DiscountID INTEGER
-        )
-    """)
-    if not success or query.lastError().type() != QSqlError.NoError:
-        print(f"Table creation error: {query.lastError().text()}")
-    else:
-        print("Product table created or already exists.")
+# def create_product_table():
+#     query = QSqlQuery()
+#     success = query.exec_("""
+#         CREATE TABLE IF NOT EXISTS Product (
+#             ProductID INTEGER PRIMARY KEY AUTOINCREMENT,
+#             ProductName TEXT NOT NULL,
+#             CategoryID INTEGER,
+#             Price REAL NOT NULL,
+#             StockLevel INTEGER NOT NULL,
+#             RestockLevel INTEGER NOT NULL,
+#             SupplierID INTEGER,
+#             DiscountID INTEGER
+#         )
+#     """)
+#     if not success or query.lastError().type() != QSqlError.NoError:
+#         print(f"Table creation error: {query.lastError().text()}")
+#     else:
+#         print("Product table created or already exists.")
 
 # database = QSqlDatabase.addDatabase("QSQLITE")
 # database.setDatabaseName("sms.db")
