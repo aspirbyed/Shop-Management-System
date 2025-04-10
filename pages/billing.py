@@ -46,7 +46,7 @@ class PaymentBox(QDialog):
         self.setLayout(master_layout)
 
     def calculate_balance(self):
-        amount = int(self.amount_paid.text())
+        amount = int(self.amount_paid.text()) if self.amount_paid.text() else 0
         balance = max(0, amount - int(self.total_amount))
         self.balance.setText(str(balance))
 
@@ -116,7 +116,7 @@ class BillingPage(QWidget):
         self.product_list.addItem("None")
         self.product_list.addItems([x for x in self.set_product_list()])
         self.product_list.setMaxVisibleItems(10)
-        self.product_list.setStyleSheet("QComboBox { combobox-popup: 0; }");
+        self.product_list.setStyleSheet("QComboBox { combobox-popup: 0; }")
 
         self.master_layout = QVBoxLayout()
         self.row1 = QHBoxLayout()
@@ -159,11 +159,20 @@ class BillingPage(QWidget):
         self.setLayout(self.master_layout)
 
     def set_product_list(self):
-        query = QSqlQuery("SELECT DISTINCT ProductName FROM Product")
+        query = QSqlQuery("SELECT ProductName FROM Product")
+        print("Setting Product List")
         products = []
         while query.next():
             products.append(query.value(0))
         return products
+    
+    def load_product_list(self):
+        self.product_list.clear()
+        self.product_list.addItem("None")
+        self.product_list.addItems([x for x in self.set_product_list()])
+        self.product_list.setMaxVisibleItems(10)
+        self.product_list.setStyleSheet("QComboBox { combobox-popup: 0; }")
+        self.product_list.setCurrentIndex(0)
     
     def add_product(self):
         product_name = self.product_list.currentText()
