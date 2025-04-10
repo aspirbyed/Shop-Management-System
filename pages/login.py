@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from PyQt5.QtSql import QSqlDatabase
+from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 
 from dashboard import MainWindow  # Import the MainWindow class
 
@@ -149,6 +150,11 @@ if __name__ == '__main__':
 
     if not database.open():
         QMessageBox.critical(None, "Database Error", "Could not open database")
+        sys.exit(1)
+
+    query = QSqlQuery()
+    if not query.exec("PRAGMA foreign_keys = ON;"):
+        QMessageBox.critical(None, "Database Error", "Error enabling foreign keys:")
         sys.exit(1)
 
     app = QApplication(sys.argv)
