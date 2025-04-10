@@ -11,7 +11,7 @@ class DiscountPage(QWidget):
         self.main_window = parent
 
         self.setWindowTitle("Discount Page")
-        self.resize(550,500)
+        self.resize(550, 500)
 
         self.back_btn = QPushButton("Back to Main Page")
         self.back_btn.clicked.connect(self.main_window.show_main)
@@ -21,15 +21,15 @@ class DiscountPage(QWidget):
         self.discount.setPlaceholderText("Enter Discount Value...")
         
         self.add_btn = QPushButton("Add Discount")
-        self.add_btn.setFixedSize(150, 30)  # Added fixed size for consistency
+        self.add_btn.setFixedSize(150, 30)
         self.del_btn = QPushButton("Delete Discount")
-        self.del_btn.setFixedSize(150, 30)  # Added fixed size for consistency
+        self.del_btn.setFixedSize(150, 30)
         self.add_btn.clicked.connect(self.add_discount)
         self.del_btn.clicked.connect(self.delete_discount)
 
         self.table = QTableWidget()
         self.table.setColumnCount(2)
-        self.table.setHorizontalHeaderLabels(["Discount ID", "Discount Value"])  # Updated headers
+        self.table.setHorizontalHeaderLabels(["Discount ID", "Discount Value"])
 
         # Make the table read-only
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -65,12 +65,12 @@ class DiscountPage(QWidget):
 
     def load_table(self):
         self.table.setRowCount(0)
-        query = QSqlQuery("SELECT DiscountID, DiscountValue FROM Discount")  # Updated query order
+        query = QSqlQuery("SELECT DiscountID, DiscountValue FROM Discount")
         while query.next():
             row = self.table.rowCount()
             self.table.insertRow(row)
-            self.table.setItem(row, 0, QTableWidgetItem(str(query.value(0))))  # DiscountValue
-            self.table.setItem(row, 1, QTableWidgetItem(str(query.value(1))))  # DiscountID
+            self.table.setItem(row, 0, QTableWidgetItem(str(query.value(0))))  # DiscountID
+            self.table.setItem(row, 1, QTableWidgetItem(str(query.value(1))))  # DiscountValue
 
     def add_discount(self):
         discount = self.discount.text().strip()
@@ -109,7 +109,9 @@ class DiscountPage(QWidget):
         if selected_row == -1:
             QMessageBox.warning(self, "No row selected", "Please select a row to delete")
             return
-        discount_value = float(self.table.item(selected_row, 0).text())  # Changed to use DiscountValue
+        
+        # Get DiscountValue from column 1 (not column 0 which is DiscountID)
+        discount_value = float(self.table.item(selected_row, 1).text())
 
         confirm = QMessageBox.question(self, "Are you sure?", f"Delete discount value {discount_value}?", 
                                      QMessageBox.Yes | QMessageBox.No)
@@ -118,7 +120,7 @@ class DiscountPage(QWidget):
             return
         
         query = QSqlQuery()
-        query.prepare("DELETE FROM Discount WHERE DiscountValue = ?")  # Changed to use DiscountValue
+        query.prepare("DELETE FROM Discount WHERE DiscountValue = ?")
         query.addBindValue(discount_value)
         if query.exec_():
             self.load_table()
