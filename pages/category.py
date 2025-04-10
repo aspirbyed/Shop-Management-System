@@ -1,5 +1,5 @@
 # Import Modules
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, QHeaderView,\
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, QHeaderView, \
     QLabel, QPushButton, QLineEdit, QTableWidget, QMessageBox, QTableWidgetItem
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 from PyQt5.QtCore import Qt
@@ -32,7 +32,7 @@ class CategoryPage(QWidget):
 
         self.table = QTableWidget()
         self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(["Category ID", "Category Name", "Aisle Number"])
+        self.table.setHorizontalHeaderLabels(["Category Name", "Aisle Number", "Category ID"])  # Updated headers
 
         # Make the table read-only
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -41,8 +41,8 @@ class CategoryPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
 
         # Fit the table within the screen (remove horizontal scrollbar)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Stretch columns to fit the table width
-        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Optional: disable horizontal scrollbar
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.master_layout = QVBoxLayout()
         self.row1 = QHBoxLayout()
@@ -73,17 +73,31 @@ class CategoryPage(QWidget):
 
     def load_table(self):
         self.table.setRowCount(0)
-        query = QSqlQuery("SELECT * FROM Category")
+        query = QSqlQuery("SELECT CategoryName, AisleNumber, CategoryID FROM Category")  # Updated query order
         while query.next():
             row = self.table.rowCount()
             self.table.insertRow(row)
-            self.table.setItem(row, 0, QTableWidgetItem(str(query.value(0))))
-            self.table.setItem(row, 1, QTableWidgetItem(query.value(1)))
-            self.table.setItem(row, 2, QTableWidgetItem(query.value(2)))
+            self.table.setItem(row, 0, QTableWidgetItem(str(query.value(0))))  # CategoryName
+            self.table.setItem(row, 1, QTableWidgetItem(str(query.value(1))))  # AisleNumber
+            self.table.setItem(row, 2, QTableWidgetItem(str(query.value(2))))  # CategoryID
 
     def add_category(self):
-        category = self.category_name.text()
-        aisle = self.aisle_number.text()
+        category = self.category_name.text().strip()
+        aisle = self.aisle_number.text().strip()
+
+        if not category:
+            QMessageBox.warning(self, "Error", "Category name cannot be empty!")
+            return
+
+        # Check if category name already exists
+        check_query = QSqlQuery()
+        check_query.prepare("SELECT COUNT(*) FROM Category WHERE CategoryName = ?")
+        check_query.addBindValue(category)
+        if check_query.exec_() and check_query.next():
+            if check_query.value(0) > 0:
+                QMessageBox.warning(self, "Error", "A category with this name already exists!")
+                return
+
         query = QSqlQuery()
         query.prepare("INSERT INTO Category (CategoryName, AisleNumber) VALUES (?, ?)")
         query.addBindValue(category)
@@ -92,38 +106,58 @@ class CategoryPage(QWidget):
             self.load_table()
             self.category_name.clear()
             self.aisle_number.clear()
+            QMessageBox.information(self, "Success", "Category added successfully")
         else:
-            QMessageBox.critical(self, "Error", "Error adding category")
+            QMessageBox.critical(self, "Error", f"Error adding category: {query.lastError().text()}")
 
     def delete_category(self):
         selected_row = self.table.currentRow()
         if selected_row == -1:
             QMessageBox.warning(self, "No row selected", "Please select a row to delete")
             return
-        category_id = int(self.table.item(selected_row, 0).text())
+        category_name = self.table.item(selected_row, 0).text()  # Changed to use CategoryName
 
-        confirm = QMessageBox.question(self, "Are you sure?", "Delete Category?", QMessageBox.Yes | QMessageBox.No)
+        confirm = QMessageBox.question(self, "Are you sure?", f"Delete category '{category_name}'?", 
+                                     QMessageBox.Yes | QMessageBox.No)
 
         if confirm == QMessageBox.No:
             return
         
         query = QSqlQuery()
-        query.prepare("DELETE FROM Category WHERE CategoryId = ?")
-        query.addBindValue(category_id)
+        query.prepare("DELETE FROM Category WHERE CategoryName = ?")  # Changed to use CategoryName
+        query.addBindValue(category_name)
         if query.exec_():
             self.load_table()
+            QMessageBox.information(self, "Success", "Category deleted successfully")
         else:
-            QMessageBox.critical(self, "Error", "Error deleting category!")
+            QMessageBox.critical(self, "Error", f"Error deleting category: {query.lastError().text()}")
 
-# database = QSqlDatabase.addDatabase("QSQLITE")
-# database.setDatabaseName("sms.db")
+# Database setup
+database = QSqlDatabase.addDatabase("QSQLITE")
+database.setDatabaseName("sms.db")
 
 # if not database.open():
 #     QMessageBox.critical(None, "Error", "Could not open database")
 #     sys.exit(1)
 
+# # Create Category table if it doesn't exist
+# def create_category_table():
+#     query = QSqlQuery()
+#     success = query.exec_("""
+#         CREATE TABLE IF NOT EXISTS Category (
+#             CategoryName TEXT PRIMARY KEY NOT NULL,
+#             AisleNumber TEXT NOT NULL,
+#             CategoryID INTEGER
+#         )
+#     """)
+#     if not success:
+#         print(f"Table creation error: {query.lastError().text()}")
+#     else:
+#         print("Category table created or already exists.")
+
 # if __name__ == "__main__":
 #     app = QApplication([])
+#     create_category_table()
 #     window = CategoryPage()
 #     window.show()
 #     app.exec_()
