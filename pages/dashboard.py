@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
 
     def show_billing(self):
         self.setWindowTitle("Billing Page")
-        self.billing_page.set_product_list()
+        self.billing_page.load_product_list()
         self.stack.setCurrentWidget(self.billing_page)
 
     def show_products(self):
