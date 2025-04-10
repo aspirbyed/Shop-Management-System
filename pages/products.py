@@ -414,8 +414,13 @@ class ProductPage(QWidget):
             QMessageBox.warning(self, "Error", "Product name cannot be empty!")
             return
             
+        price_input = price.strip()
+        if not price_input:  # Check if price is empty
+            QMessageBox.warning(self, "Error", "Price cannot be empty!")
+            return
+            
         try:
-            price = float(price.strip()) if price.strip() else 0.0
+            price = float(price_input)  # No default to 0.0; price must be explicitly provided
             stock = int(stock.strip()) if stock.strip() else 0
             restock = int(restock.strip()) if restock.strip() else 0
         except ValueError as e:
