@@ -48,8 +48,8 @@ class SuppliersPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
 
         # Fit the table within the screen (remove horizontal scrollbar)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Stretch columns to fit the table width
-        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Optional: disable horizontal scrollbar
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         # Layouts
         self.master_layout = QVBoxLayout()
@@ -63,9 +63,7 @@ class SuppliersPage(QWidget):
         self.row1.addWidget(self.supplier_contact, 1)
         self.row1.addWidget(QLabel("Address:"))
         self.row1.addWidget(self.supplier_address, 2)
-
         self.row1.addStretch()
-
 
         # Row 3: Buttons
         self.row3.addWidget(self.add_btn)
@@ -97,10 +95,10 @@ class SuppliersPage(QWidget):
         while query.next():
             row = self.table.rowCount()
             self.table.insertRow(row)
-            self.table.setItem(row, 0, QTableWidgetItem(str(query.value(0))))  # supplierID
-            self.table.setItem(row, 1, QTableWidgetItem(query.value(1)))       # supplierName
-            self.table.setItem(row, 2, QTableWidgetItem(query.value(2)))       # supplierContact
-            self.table.setItem(row, 3, QTableWidgetItem(query.value(3)))       # supplier address 
+            self.table.setItem(row, 0, QTableWidgetItem(str(query.value(0))))  # SupplierID
+            self.table.setItem(row, 1, QTableWidgetItem(query.value(1)))       # SupplierName
+            self.table.setItem(row, 2, QTableWidgetItem(query.value(2)))       # ContactNumber
+            self.table.setItem(row, 3, QTableWidgetItem(query.value(3)))       # Address 
 
     def load_selected_row(self):
         """Populate input fields with data from the selected row."""
@@ -110,7 +108,6 @@ class SuppliersPage(QWidget):
             self.supplier_contact.setText(self.table.item(selected_row, 2).text())
             self.supplier_address.setText(self.table.item(selected_row, 3).text())
 
-
     def add_supplier(self):
         """Add a new supplier to the database."""
         name = self.supplier_name.text().strip()
@@ -118,8 +115,17 @@ class SuppliersPage(QWidget):
         address = self.supplier_address.text().strip()
 
         if not name or not contact or not address:
-            QMessageBox.warning(self, "Input Error", "Please enter both name and contact.")
+            QMessageBox.warning(self, "Input Error", "Please enter all fields: name, contact, and address.")
             return
+
+        # Check if supplier name already exists
+        check_query = QSqlQuery()
+        check_query.prepare("SELECT COUNT(*) FROM Suppliers WHERE SupplierName = ?")
+        check_query.addBindValue(name)
+        if check_query.exec_() and check_query.next():
+            if check_query.value(0) > 0:
+                QMessageBox.warning(self, "Error", "A supplier with this name already exists!")
+                return
 
         query = QSqlQuery()
         query.prepare("INSERT INTO Suppliers (SupplierName, ContactNumber, Address) VALUES (?, ?, ?)")
@@ -130,8 +136,9 @@ class SuppliersPage(QWidget):
         if query.exec_():
             self.load_table()
             self.clear_fields()
+            QMessageBox.information(self, "Success", "Supplier added successfully")
         else:
-            QMessageBox.critical(self, "Error", "Error adding supplier: " + query.lastError().text())
+            QMessageBox.critical(self, "Error", f"Error adding supplier: {query.lastError().text()}")
 
     def delete_supplier(self):
         """Delete the selected supplier from the database."""
@@ -140,22 +147,23 @@ class SuppliersPage(QWidget):
             QMessageBox.warning(self, "No Selection", "Please select a supplier to delete.")
             return
 
-        supplier_id = int(self.table.item(selected_row, 0).text())
-        confirm = QMessageBox.question(self, "Confirm Delete", "Are you sure you want to delete this supplier?",
+        supplier_name = self.table.item(selected_row, 1).text()  # Use SupplierName for confirmation
+        confirm = QMessageBox.question(self, "Confirm Delete", f"Are you sure you want to delete supplier '{supplier_name}'?",
                                        QMessageBox.Yes | QMessageBox.No)
 
         if confirm == QMessageBox.No:
             return
 
         query = QSqlQuery()
-        query.prepare("DELETE FROM Suppliers WHERE SupplierID = ?")
-        query.addBindValue(supplier_id)
+        query.prepare("DELETE FROM Suppliers WHERE SupplierName = ?")  # Changed to use SupplierName
+        query.addBindValue(supplier_name)
 
         if query.exec_():
             self.load_table()
             self.clear_fields()
+            QMessageBox.information(self, "Success", "Supplier deleted successfully")
         else:
-            QMessageBox.critical(self, "Error", "Error deleting supplier: " + query.lastError().text())
+            QMessageBox.critical(self, "Error", f"Error deleting supplier: {query.lastError().text()}")
 
     def clear_fields(self):
         """Clear the input fields."""
@@ -163,16 +171,33 @@ class SuppliersPage(QWidget):
         self.supplier_contact.clear()
         self.supplier_address.clear()
 
-# # Database Setup
-# database = QSqlDatabase.addDatabase("QSQLITE")
-# database.setDatabaseName("sms.db")
+# Database Setup
+database = QSqlDatabase.addDatabase("QSQLITE")
+database.setDatabaseName("sms.db")
 
 # if not database.open():
 #     QMessageBox.critical(None, "Error", "Could not open database")
 #     sys.exit(1)
 
+# # Create Suppliers table if it doesn't exist
+# def create_suppliers_table():
+#     query = QSqlQuery()
+#     success = query.exec_("""
+#         CREATE TABLE IF NOT EXISTS Suppliers (
+#             SupplierName TEXT PRIMARY KEY NOT NULL,
+#             ContactNumber TEXT,
+#             Address TEXT,
+#             SupplierID INTEGER
+#         )
+#     """)
+#     if not success:
+#         print(f"Table creation error: {query.lastError().text()}")
+#     else:
+#         print("Suppliers table created or already exists.")
+
 # if __name__ == "__main__":
 #     app = QApplication([])
+#     create_suppliers_table()
 #     window = SuppliersPage()
 #     window.show()
 #     app.exec_()
