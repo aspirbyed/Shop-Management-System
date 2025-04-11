@@ -48,6 +48,7 @@ class SalesAnalyzer:
             # base_path = os.path.dirname(sys.executable)
             base_path = os.getcwd()
             db_path = os.path.join(base_path, "sms.db")
+            print(db_path)
             conn = sqlite3.connect(db_path)
             print(f"Successfully connected to the database: {db_path}")
 

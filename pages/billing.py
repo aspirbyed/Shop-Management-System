@@ -9,7 +9,6 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 import os
-import sys
 from barcode import BarcodeScannerDialog
 
 class PaymentBox(QDialog):

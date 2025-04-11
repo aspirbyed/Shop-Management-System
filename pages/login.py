@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtSql import QSqlDatabase
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 
-from dashboard import MainWindow  # Import the MainWindow class
+from dashboard import MainWindow
 
 import sys
 import os

@@ -8,7 +8,6 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
 
 # import time
-
 # from AppKit import NSApplication
 # from PyObjCTools import AppHelper
 # import AVFoundation
@@ -58,7 +57,7 @@ class BarcodeScannerDialog(QDialog):
 
         # Buttons
         button_layout = QHBoxLayout()
-        self.stop_button = QPushButton("Stop Scanning", self)
+        self.stop_button = QPushButton("Add Product", self)
         self.stop_button.clicked.connect(self.stop_scanning)
         button_layout.addWidget(self.stop_button)
         layout.addLayout(button_layout)

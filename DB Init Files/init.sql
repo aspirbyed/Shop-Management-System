@@ -33,21 +33,21 @@ CREATE TABLE Product (
     StockLevel INTEGER NOT NULL,
     RestockLevel INTEGER NOT NULL,
     SupplierID INTEGER,
-    DiscountID INTEGER DEFAULT 1 NOT NULL,
-    FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID),
-    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID),
-    FOREIGN KEY (DiscountID) REFERENCES Discount(DiscountID)
+    DiscountID INTEGER DEFAULT 1,
+    FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID) ON DELETE SET NULL,
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)ON DELETE SET NULL,
+    FOREIGN KEY (DiscountID) REFERENCES Discount(DiscountID) ON DELETE SET NULL
 );
 
-CREATE TABLE InventoryTransactions (
+CREATE TABLE InventoryTransactions(
     TransactionID INTEGER PRIMARY KEY AUTOINCREMENT,
     ProductID INTEGER NOT NULL,
     TransactionType TEXT NOT NULL,
     Quantity INTEGER NOT NULL,
     TransactionDate TEXT NOT NULL,
     SupplierID INTEGER NOT NULL,
-    FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
-    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID) ON DELETE RESTRICT,
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID) ON DELETE RESTRICT
 );
 
 CREATE TABLE SaleDetails (
@@ -58,9 +58,9 @@ CREATE TABLE SaleDetails (
     UnitPrice REAL NOT NULL,
     Subtotal REAL NOT NULL,
     DiscountID INTEGER DEFAULT 1 NOT NULL,
-    FOREIGN KEY (SalesID) REFERENCES Sales(SalesID),
-    FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
-    FOREIGN KEY (DiscountID) REFERENCES Discount(DiscountID)
+    FOREIGN KEY (SalesID) REFERENCES Sales(SalesID) ON DELETE RESTRICT,
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID) ON DELETE RESTRICT,
+    FOREIGN KEY (DiscountID) REFERENCES Discount(DiscountID) ON DELETE RESTRICT
 );
 
 CREATE TABLE Invoices (
@@ -71,5 +71,12 @@ CREATE TABLE Invoices (
     AmountPaid REAL NOT NULL,
     BalanceDue REAL NOT NULL,
     PaymentMethod TEXT NOT NULL,
-    FOREIGN KEY (SalesID) REFERENCES Sales(SalesID)
+    FOREIGN KEY (SalesID) REFERENCES Sales(SalesID) ON DELETE RESTRICT
 );
+
+CREATE TRIGGER Product_DiscountID_Default
+BEFORE DELETE ON Discount
+FOR EACH ROW
+BEGIN
+    UPDATE Product SET DiscountID = 1 WHERE DiscountID = OLD.DiscountID;
+END;
